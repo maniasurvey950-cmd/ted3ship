@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Paypal Support</title><!-- html2pdf for HTML → PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script><!-- jsPDF for Notes PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0e0e10;
+            --text: #111;
+            --panel: #fff;
+            --accent: #0a84ff;
+            --muted: #6b7280;
+            --line: #e5e7eb;
+            --shadow: 0 24px 60px rgba(0, 0, 0, .18);
+            --safe-b: env(safe-area-inset-bottom, 0px);
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0;
+            font-family: -Paypal-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial;
+            background: #f6f7f9;
+            color: var(--text)
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none
+        }
+
+        /* Header */
+        header {
+            height: 60px;
+            background: #0f1720;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .brand img {
+            height: 30px;
+            width: auto
+        }
+
+        /* replace src */
+        .brand-name {
+            font-weight: 600
+        }
+
+        .spacer {
+            flex: 1
+        }
+
+        .support a {
+            background: rgba(255, 255, 255, .06);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #fff
+        }
+
+        /* Layout */
+        .container {
+            max-width: 960px;
+            margin: 18px auto;
+            padding: 0 14px
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow)
+        }
+
+        /* Invoice */
+        #invoice {
+            padding: 22px
+        }
+
+        .inv-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 12px
+        }
+
+        .inv-left {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .inv-left img {
+            height: 44px;
+            width: auto
+        }
+
+        /* replace src */
+        .inv-title {
+            font-weight: 800;
+            font-size: 20px
+        }
+
+        .meta {
+            display: flex;
+            gap: 22px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: var(--muted)
+        }
+
+        .cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin: 16px 0
+        }
+
+        .box {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px
+        }
+
+        .box .t {
+            font-weight: 700;
+            margin-bottom: 6px
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .hl {
+            margin: 14px 0;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--accent)
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: 8px
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 680px
+        }
+
+        th,
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f1f3;
+            text-align: left;
+            font-size: 14px
+        }
+
+        th {
+            background: #fafafa;
+            color: #374151;
+            font-weight: 700
+        }
+
+        td.r,
+        th.r {
+            text-align: right
+        }
+
+        .totals {
+            max-width: 360px;
+            margin-left: auto;
+            margin-top: 14px
+        }
+
+        .totals .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-top: 1px solid #f3f4f6
+        }
+
+        .note {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #6b7280;
+            text-align: center
+        }
+
+        /* Buttons */
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 16px
+        }
+
+        .btn {
+            appearance: none;
+            border: 1px solid #d1d5db;
+            background: #111827;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer
+        }
+
+        .btn.secondary {
+            background: #fff;
+            color: #111827
+        }
+
+        .btn.small {
+            padding: 8px 10px;
+            font-size: 14px
+        }
+
+        /* Popup */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, .56);
+            z-index: 200;
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            transition: opacity .35s ease
+        }
+
+        .overlay.show {
+            display: flex;
+            opacity: 1
+        }
+
+        .dialog {
+            width: 360px;
+            max-width: 92%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, .6);
+            transform: translateY(-16px);
+            transition: transform .35s ease
+        }
+
+        .overlay.show .dialog {
+            transform: translateY(0)
+        }
+
+        .dlg-bar {
+            background: linear-gradient(180deg, #2f3134, #232428);
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .dlg-logo img {
+            width: 18px;
+            height: 18px
+        }
+
+        .dlg-title {
+            flex: 1;
+            color: #e5e7eb;
+            font-size: 13px
+        }
+
+        .dlg-body {
+            background: #232326;
+            padding: 16px 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #f1f1f2
+        }
+
+        .dlg-actions {
+            background: #232326;
+            padding: 12px 14px 18px;
+            display: flex;
+            gap: 10px
+        }
+
+        .btn-link {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #0a84ff;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 10px 12px;
+            cursor: pointer
+        }
+
+        /* Mobile tweaks */
+        @media (max-width:640px) {
+            .cols {
+                grid-template-columns: 1fr
+            }
+
+            .table-wrap table {
+                min-width: 640px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <div class="brand-name">Paypal-Store</div>
+        </div>
+        <div class="spacer"><br></div>
+        <div class="support"><a id="supportTel" href="tel:+1 805-321-6977">+1 805-321-6977</a></div>
+    </header>
+    <div class="container">
+        <div class="card" id="invoiceCard">
+            <section id="invoice">
+                <div class="inv-head">
+                    <div class="inv-left"><img src="data:image/webp;base64,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" alt="Invoice Logo">
+                        <div>
+                            <div class="inv-title">Invoice-Receipt <span class="muted">&middot; Paid</span></div>
+                            <div class="meta">Order Number: W43749077 &middot; Order Date: April 14, 2026</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:12px;color:#6b7280;">Toll Free</div>
+                        <div style="font-weight:800;color:var(--accent);font-size:18px;"><a id="bigHelp" href="tel:+1 805-321-6977">+1&nbsp;</a>805-321-6977</div>
+                    </div>
+                </div>
+                <div class="cols">
+                    <div class="box">
+                        <div class="t">Sold To</div>
+                        <div>Cynthia Chapman</div>
+                        <div>102 Big Sur Dr.<br>Cedar Park, TX 78613</div>
+                        <div class="muted">Customer Number: <strong>906447</strong></div>
+                    </div>
+                    <div class="box">
+                        <div class="t">Ship To</div>
+                        <div>Cynthia Chapman</div>
+                        <div>102 Big Sur Dr.<br>Cedar Park, TX 78613</div>
+                    </div>
+                </div>
+                <h3>Order Details</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Product Number</th>
+                                <th class="r">Item Price</th>
+                                <th class="r">Qty Ordered</th>
+                                <th class="r">Qty Shipped</th>
+                                <th class="r">Extended Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>KENSINGTON POCKETMOUSE (72114)-USA</td>
+                                <td>TB070LL/A</td>
+                                <td class="r">$14.95</td>
+                                <td class="r">1</td>
+                                <td class="r">1</td>
+                                <td class="r">$14.95</td>
+                            </tr>
+                            <tr>
+                                <td>Fastrack Astor FR2 Pro Smart Watch<br></td>
+                                <td>S3136LL/A</td>
+                                <td class="r">$283.00</td>
+                                <td class="r">1</td>
+                                <td class="r">1</td>
+                                <td class="r">$283.00</td>
+                            </tr>
+                            <tr>
+                                <td>EXPEDITED SHIPPING CHARGE</td>
+                                <td>SHIPPING19</td>
+                                <td class="r">$15.00</td>
+                                <td class="r">1</td>
+                                <td class="r">1</td>
+                                <td class="r">$15.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="totals">
+                    <div class="row">
+                        <div>Subtotal</div>
+                        <div>$312.95</div>
+                    </div>
+                    <div class="row">
+                        <div>Sales Tax</div>
+                        <div>$17.57</div>
+                    </div>
+                    <div class="row" style="font-weight:800;">
+                        <div>Total</div>
+                        <div>$330.47</div>
+                    </div>
+                    <div class="row">
+                        <div>Amount Due</div>
+                        <div>$0.00</div>
+                    </div>
+                </div>
+                <h3>Payment Methods</h3>
+                <p>$330.47 charged to Paypal<br><strong>For a total of $330.47</strong></p>
+                <h3>Additional Information</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Invoice Number</th>
+                                <th>Invoice Date</th>
+                                <th>Terms</th>
+                                <th>Ship Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>4534365512</td>
+                                <td>April 14, 2026</td>
+                                <td>Credit Card</td>
+                                <td>April 14, 2026</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="note">If you wish to cancel this purchase before it is delivered, or if you believe this is an unauthorized transaction, please contact our toll-free number provided above.</p>
+            </section>
+        </div>
+        <div class="button-row"><button class="btn" id="btnShowPopup">Show Popup</button> <button class="btn" id="btnShowInvoice">Show Invoice</button> <button class="btn secondary" id="btnDownloadInvoice">Download Invoice PDF</button> <button class="btn secondary" id="btnDownloadNotes">Download Notes PDF</button></div>
+    </div><!-- Popup -->
+    <div class="overlay" id="popup">
+        <div class="dialog">
+            <div class="dlg-bar">
+                <div class="dlg-logo"><img src="https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Settings-1024.png" alt="-Pay-pal-"></div>
+                <div class="dlg-title">system-notice says</div>
+            </div>
+            <div class="dlg-body"><strong>Security notice</strong><br><br>We detected a transaction attempt of&nbsp;<strong>$330.47</strong> that requires verification. To protect your account, the transaction has been placed on hold for review.<br><br>If you did not initiate this charge, please contact official support immediately for assistance. Do not share passwords, OTPs, or account credentials with anyone Toll Free Number +1 805-321-6977.</div>
+            <div class="dlg-actions"><a class="btn-link" id="callSupport" href="tel:+1 805-321-6977">Call Support</a> <button class="btn-link" id="closePopup">Dismiss</button></div>
+        </div>
+    </div>
+    <script>
+        const popup = document.getElementById('popup');
+        const btnShowPopup = document.getElementById('btnShowPopup');
+        const btnShowInvoice = document.getElementById('btnShowInvoice');
+        const btnDownloadInvoice = document.getElementById('btnDownloadInvoice');
+        const btnDownloadNotes = document.getElementById('btnDownloadNotes');
+        const btnClosePopup = document.getElementById('closePopup');
+        
+        function openPopup(){ popup.classList.add('show'); }
+        function closePopup(){ popup.classList.remove('show'); setTimeout(()=> popup.style.display='none',350); }
+        
+        btnShowPopup.addEventListener('click', ()=> { popup.style.display='flex'; setTimeout(openPopup,10); });
+        btnClosePopup.addEventListener('click', closePopup);
+        
+        window.addEventListener('load', ()=> { popup.style.display='flex'; setTimeout(openPopup,30); });
+        
+        btnShowInvoice.addEventListener('click', ()=> document.getElementById('invoice').scrollIntoView({behavior:'smooth'}));
+        
+        function downloadInvoicePDF(){
+          const el = document.getElementById('invoice');
+          const opt = { margin:[10,10,10,10], filename:'Invoice.pdf', image:{ type:'jpeg', quality:0.98 },
+                        html2canvas:{ scale:2, useCORS:true }, jsPDF:{ unit:'mm', format:'a4', orientation:'portrait' } };
+          html2pdf().set(opt).from(el).save();
+        }
+        btnDownloadInvoice.addEventListener('click', downloadInvoicePDF);
+        
+        function downloadNotesPDF(){
+          const { jsPDF } = window.jspdf; const doc=new jsPDF({unit:'pt',format:'a4'}); const m=56; let y=100;
+          doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.text('Risk & Payment Notes',m,64);
+          doc.setFont('helvetica','normal'); doc.setFontSize(12);
+          const lines=['If you did not authorize a transaction, contact official support immediately.',
+                       'Do not share one-time passwords (OTPs), verification codes, or credentials.',
+                       'Avoid clicking suspicious links or attachments.',
+                       'Payments may take up to 24 hours to appear on statements.',
+                       'For assistance, call the helpline below.'];
+          lines.forEach(t=>{doc.text(`• ${t}`,m,y);y+=22;});
+          doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.text('Helpline:+1 805-321-6977',m,y+16);
+          doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.text('Demo document for presentation purposes.',m,y+36);
+          doc.save('Risk-and-Payment-Notes.pdf');
+        }
+        btnDownloadNotes.addEventListener('click', downloadNotesPDF);
+        
+        document.getElementById('callSupport').addEventListener('click', ()=> popup.style.display='none');
+    </script>
+</body>
+
+</html>
